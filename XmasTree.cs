@@ -7,7 +7,7 @@ using Crayon;
 using static System.Console;
 
 {
-  var n = int.TryParse(args.FirstOrDefault() ?? "15", out var nx) ? nx : 15;
+  var n = int.TryParse(args.FirstOrDefault() ?? "20", out var nx) ? nx : 20;
   var xmasTree = BuildXmasTree(n);
 
   var cts = new CancellationTokenSource();
@@ -62,7 +62,9 @@ IReadOnlyList<Pixel> BuildXmasTree(int size)
 
 class Pixel
 {
-  private static Rainbow Rainbow = new Rainbow(0.005);
+  private static Random Rnd = new Random();
+
+  private Rainbow _rainbow = new Rainbow(0.2);
 
   public int X { get; init; }
   public int Y { get; init; }
@@ -76,13 +78,18 @@ class Pixel
     Y = y;
     C = c.ToString();
     Color = color;
+
+    foreach (var _ in Enumerable.Range(0, Rnd.Next(1, 100)))
+    {
+      _rainbow.Next();
+    }
   }
 
   public void Update()
   {
     SetCursorPosition(X, Y);
     var output = Color == null
-      ? Rainbow.Next()
+      ? _rainbow.Next()
       : Output.FromRgb(Color.Value.r, Color.Value.g, Color.Value.b);
     Write(output.Text(C));
   }
