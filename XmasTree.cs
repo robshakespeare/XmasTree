@@ -34,14 +34,21 @@ using static System.Console;
 
 IReadOnlyList<Pixel> BuildXmasTree(int size)
 {
+  const int messageLine = 4;
+  const string message = "MERRY CHRISTMAS!";
+
   var pixels = new List<Pixel>();
   var rnd = new Random();
   for (var i = 1; i <= size; i++)
   {
     for (var j = 1; j < (size - i) * 2; j++)
     {
-      var isLight = rnd.Next(0, 10) > 7;
-      pixels.Add(new Pixel(i + j, size - i, isLight ? '@' : '*', isLight ? null : (0x42, 0x69, 0x2F)));
+      var x = i + j;
+      var isWithinMessageRegion =
+        i >= messageLine - 1 && i <= messageLine + 1 &&
+        x >= (size - message.Length / 2) && x <= (size + 1 + message.Length / 2);
+      var isLight = !isWithinMessageRegion && rnd.Next(0, 10) > 7;
+      pixels.Add(new Pixel(x, size - i, isLight ? '@' : '*', isLight ? null : (0x42, 0x69, 0x2F)));
     }
   }
 
@@ -51,6 +58,11 @@ IReadOnlyList<Pixel> BuildXmasTree(int size)
     {
       pixels.Add(new Pixel(x, y, '#', (0x65, 0x43, 0x21)));
     }
+  }
+
+  foreach (var x in message.Select((c, i) => (c, i)).Where(x => x.c != ' '))
+  {
+    pixels.Add(new Pixel((size + 1 - message.Length / 2) + x.i, size - messageLine, x.c, null));
   }
 
   return pixels;
@@ -83,7 +95,7 @@ class Pixel
 
   public void Update()
   {
-    var offScreen = X >= BufferWidth || Y >= BufferHeight;
+    var offScreen = X <= 0 || Y <= 0 || X >= BufferWidth || Y >= BufferHeight;
     if (offScreen)
     {
       return;
