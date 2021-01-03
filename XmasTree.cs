@@ -7,7 +7,7 @@ using Crayon;
 using static System.Console;
 
 {
-  var n = int.TryParse(args.FirstOrDefault() ?? "20", out var nx) ? nx : 20;
+  var n = args.Any() && int.TryParse(args.First(), out var a) ? a : 20;
   var xmasTree = BuildXmasTree(n);
 
   var cts = new CancellationTokenSource();
@@ -62,10 +62,9 @@ IReadOnlyList<Pixel> BuildXmasTree(int size)
     }
   }
 
-  foreach (var m in messageLines
-    .SelectMany((line, y) => line
-      .Select((c, i) => (c, y, i, mid: line.Length / 2))
-      .Where(m => m.c != ' ')))
+  foreach (var m in messageLines.SelectMany((line, y) => line
+    .Select((c, i) => (c, y, i, mid: line.Length / 2))
+    .Where(m => m.c != ' ')))
   {
     pixels.Add(new Pixel((size - m.mid) + m.i, size - messageLine - m.y, m.c, null));
   }
@@ -73,51 +72,32 @@ IReadOnlyList<Pixel> BuildXmasTree(int size)
   return pixels;
 }
 
-class Pixel
+record Pixel(int X, int Y, char C, (byte r, byte g, byte b)? Color)
 {
   private static Random Rnd = new Random();
+  public string S = C.ToString();
+  private Rainbow _rainbow = NewRainbow();
+  private bool _hasRendered = false;
 
-  private Rainbow _rainbow = new Rainbow(Rnd.Next(10, 30) / 100d);
-  private bool hasRendered = false;
-
-  public int X { get; init; }
-  public int Y { get; init; }
-  public string C { get; init; }
-  public (byte r, byte g, byte b)? Color { get; init; }
-
-  public Pixel(int x, int y, char c, (byte, byte, byte)? color)
+  private static Rainbow NewRainbow()
   {
-    X = x;
-    Y = y;
-    C = c.ToString();
-    Color = color;
-
-    foreach (var offset in Enumerable.Range(0, Rnd.Next(1, 100)))
-    {
-      _rainbow.Next();
-    }
+    var rainbow = new Rainbow(Rnd.Next(10, 30) / 100d);
+    Enumerable.Range(0, Rnd.Next(1, 100)).ToList().ForEach(offset => rainbow.Next());
+    return rainbow;
   }
 
   public void Update()
   {
     var offScreen = X <= 0 || Y <= 0 || X >= BufferWidth || Y >= BufferHeight;
-    if (offScreen)
-    {
-      return;
-    }
-
     var isFixedColor = Color != null;
-    if (hasRendered && isFixedColor)
+    if (offScreen || (_hasRendered && isFixedColor))
     {
       return;
     }
 
     SetCursorPosition(X, Y);
-    var output = Color == null
-      ? _rainbow.Next()
-      : Output.FromRgb(Color.Value.r, Color.Value.g, Color.Value.b);
-    Write(output.Text(C));
-
-    hasRendered = true;
+    var output = Color == null ? _rainbow.Next() : Output.FromRgb(Color.Value.r, Color.Value.g, Color.Value.b);
+    Write(output.Text(S));
+    _hasRendered = true;
   }
 }
