@@ -65,6 +65,7 @@ class Pixel
   private static Random Rnd = new Random();
 
   private Rainbow _rainbow = new Rainbow(0.2);
+  private bool hasRendered = false;
 
   public int X { get; init; }
   public int Y { get; init; }
@@ -92,10 +93,18 @@ class Pixel
       return;
     }
 
+    var isFixedColor = Color != null;
+    if (hasRendered && isFixedColor)
+    {
+      return;
+    }
+
     SetCursorPosition(X, Y);
     var output = Color == null
       ? _rainbow.Next()
       : Output.FromRgb(Color.Value.r, Color.Value.g, Color.Value.b);
     Write(output.Text(C));
+
+    hasRendered = true;
   }
 }
