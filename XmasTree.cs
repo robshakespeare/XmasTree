@@ -11,25 +11,22 @@ using static System.Console;
   var xmasTree = BuildXmasTree(n);
 
   var cts = new CancellationTokenSource();
-  CancelKeyPress += (sender, args) =>
+  CancelKeyPress += (s, evnt) =>
   {
-    args.Cancel = true;
+    evnt.Cancel = true;
     cts.Cancel();
   };
-  Console.Clear();
-  Console.CursorVisible = false;
+  Clear();
+  CursorVisible = false;
 
   while (!cts.Token.IsCancellationRequested)
   {
-    foreach (var pixel in xmasTree)
-    {
-      pixel.Update();
-    }
+    foreach (var pixel in xmasTree) pixel.Update();
     await Task.Delay(33, cts.Token).ContinueWith(_ => {});
   }  
 
   SetCursorPosition(0, Math.Min(n + 4, BufferHeight - 1));
-  Console.CursorVisible = true;
+  CursorVisible = true;
 }
 
 IReadOnlyList<Pixel> BuildXmasTree(int size)
@@ -42,7 +39,6 @@ IReadOnlyList<Pixel> BuildXmasTree(int size)
   var pixels = new List<Pixel>();
   var rnd = new Random();
   for (var i = 1; i <= size; i++)
-  {
     for (var j = 1; j < (size - i) * 2; j++)
     {
       var x = i + j;
@@ -52,15 +48,10 @@ IReadOnlyList<Pixel> BuildXmasTree(int size)
       var isLight = !isWithinMessageRegion && rnd.Next(0, 10) > 7;
       pixels.Add(new Pixel(x, size - i, isLight ? '@' : '*', isLight ? null : (0x42, 0x69, 0x2F)));
     }
-  }
 
   for (var y = size; y < size + 3; y++)
-  {
     for (var x = size - 1; x <= size + 1; x++)
-    {
       pixels.Add(new Pixel(x, y, '#', (0x65, 0x43, 0x21)));
-    }
-  }
 
   foreach (var m in messageLines.SelectMany((line, y) => line
     .Select((c, i) => (c, y, i, mid: line.Length / 2))
@@ -76,24 +67,17 @@ record Pixel(int X, int Y, char C, (byte r, byte g, byte b)? Color)
 {
   private static Random Rnd = new Random();
   public string S = C.ToString();
-  private Rainbow _rainbow = NewRainbow();
+  private Rainbow _rainbow = OffsetRainbow(new Rainbow(Rnd.Next(10, 30) / 100d));
   private bool _hasRendered = false;
 
-  private static Rainbow NewRainbow()
-  {
-    var rainbow = new Rainbow(Rnd.Next(10, 30) / 100d);
-    Enumerable.Range(0, Rnd.Next(1, 100)).ToList().ForEach(offset => rainbow.Next());
-    return rainbow;
-  }
+  private static Rainbow OffsetRainbow(Rainbow rainbow) =>
+    Enumerable.Range(0, Rnd.Next(1, 100)).Aggregate(rainbow, (r, i) => { r.Next(); return r; });
 
   public void Update()
   {
     var offScreen = X <= 0 || Y <= 0 || X >= BufferWidth || Y >= BufferHeight;
     var isFixedColor = Color != null;
-    if (offScreen || (_hasRendered && isFixedColor))
-    {
-      return;
-    }
+    if (offScreen || (_hasRendered && isFixedColor)) return;
 
     SetCursorPosition(X, Y);
     var output = Color == null ? _rainbow.Next() : Output.FromRgb(Color.Value.r, Color.Value.g, Color.Value.b);
