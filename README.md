@@ -11,5 +11,5 @@ Inspired by @LuigiArpino's Tweet, 25 Dec 2020, to @shanselman: https://twitter.c
 ### Run
 
 ```
-dotnet run --project XmasTree
+dotnet run
 ```

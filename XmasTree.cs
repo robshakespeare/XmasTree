@@ -1,8 +1,9 @@
 // Inspired by @LuigiArpino's Tweet, 25 Dec 2020, to @shanselman: https://twitter.com/luigiarpino/status/1342522409400860683
 using System;
+using System.Linq;
 using static System.Console;
 
-var n = Convert.ToInt32(args[0]);
+var n = int.TryParse(args.FirstOrDefault() ?? "15", out var nx) ? nx : 15;
 var rnd = new Random();
 for (var i = n; i > 1; i--) {
   var t = "".PadLeft(i, ' ');
