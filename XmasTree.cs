@@ -28,7 +28,7 @@ using static System.Console;
     await Task.Delay(33, cts.Token).ContinueWith(_ => {});
   }  
 
-  SetCursorPosition(0, n + 4);
+  SetCursorPosition(0, Math.Min(n + 4, BufferHeight - 1));
   Console.CursorVisible = true;
 }
 
@@ -69,7 +69,6 @@ class Pixel
   public int X { get; init; }
   public int Y { get; init; }
   public string C { get; init; }
-
   public (byte r, byte g, byte b)? Color { get; init; }
 
   public Pixel(int x, int y, char c, (byte, byte, byte)? color)
@@ -87,6 +86,12 @@ class Pixel
 
   public void Update()
   {
+    var offScreen = X >= BufferWidth || Y >= BufferHeight;
+    if (offScreen)
+    {
+      return;
+    }
+
     SetCursorPosition(X, Y);
     var output = Color == null
       ? _rainbow.Next()
