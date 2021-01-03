@@ -1,20 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Crayon;
 using static System.Console;
 
 {
-  Console.Clear();
-
   var n = int.TryParse(args.FirstOrDefault() ?? "15", out var nx) ? nx : 15;
   var xmasTree = BuildXmasTree(n);
-  foreach(var pixel in xmasTree)
+
+  var cts = new CancellationTokenSource();
+  CancelKeyPress += (sender, args) =>
   {
-    pixel.Update();
-  }
+    args.Cancel = true;
+    cts.Cancel();
+  };
+  Console.Clear();
+  Console.CursorVisible = false;
+
+  while (!cts.Token.IsCancellationRequested)
+  {
+    foreach (var pixel in xmasTree)
+    {
+      pixel.Update();
+    }
+    await Task.Delay(33, cts.Token).ContinueWith(_ => {});
+  }  
 
   SetCursorPosition(0, n + 4);
+  Console.CursorVisible = true;
 }
 
 IReadOnlyList<Pixel> BuildXmasTree(int size)
@@ -30,7 +45,7 @@ IReadOnlyList<Pixel> BuildXmasTree(int size)
         i + j,
         size - i,
         isLight ? '@' : '*',
-        isLight ? (0xFF, 0xD7, 0x00) : (0x42, 0x69, 0x2F)));
+        isLight ? null : (0x42, 0x69, 0x2F)));
     }
   }
 
@@ -47,13 +62,15 @@ IReadOnlyList<Pixel> BuildXmasTree(int size)
 
 class Pixel
 {
+  private static Rainbow Rainbow = new Rainbow(0.005);
+
   public int X { get; init; }
   public int Y { get; init; }
   public string C { get; init; }
 
-  public (byte r, byte g, byte b) Color { get; init; }
+  public (byte r, byte g, byte b)? Color { get; init; }
 
-  public Pixel(int x, int y, char c, (byte, byte, byte) color)
+  public Pixel(int x, int y, char c, (byte, byte, byte)? color)
   {
     X = x;
     Y = y;
@@ -64,6 +81,9 @@ class Pixel
   public void Update()
   {
     SetCursorPosition(X, Y);
-    Write(Output.FromRgb(Color.r, Color.g, Color.b).Text(C));
+    var output = Color == null
+      ? Rainbow.Next()
+      : Output.FromRgb(Color.Value.r, Color.Value.g, Color.Value.b);
+    Write(output.Text(C));
   }
 }
