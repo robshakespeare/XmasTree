@@ -1,6 +1,6 @@
 # 🎄 XmasTree
 
-Inspired by @LuigiArpino's Tweet, 25 Dec 2020, to @shanselman: https://twitter.com/luigiarpino/status/1342522409400860683
+Animated ASCII Christmas Tree, inspired by @LuigiArpino's Tweet, 25 Dec 2020, to @shanselman: https://twitter.com/luigiarpino/status/1342522409400860683
 
 
 ### Prerequisites
@@ -12,4 +12,10 @@ Inspired by @LuigiArpino's Tweet, 25 Dec 2020, to @shanselman: https://twitter.c
 
 ```
 dotnet run
+```
+
+*Or to specify the size (default is 20):*
+
+```
+dotnet run 30
 ```
