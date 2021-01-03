@@ -41,11 +41,7 @@ IReadOnlyList<Pixel> BuildXmasTree(int size)
     for (var j = 1; j < (size - i) * 2; j++)
     {
       var isLight = rnd.Next(0, 10) > 7;
-      pixels.Add(new Pixel(
-        i + j,
-        size - i,
-        isLight ? '@' : '*',
-        isLight ? null : (0x42, 0x69, 0x2F)));
+      pixels.Add(new Pixel(i + j, size - i, isLight ? '@' : '*', isLight ? null : (0x42, 0x69, 0x2F)));
     }
   }
 
@@ -64,7 +60,7 @@ class Pixel
 {
   private static Random Rnd = new Random();
 
-  private Rainbow _rainbow = new Rainbow(0.2);
+  private Rainbow _rainbow = new Rainbow(Rnd.Next(10, 30) / 100d);
   private bool hasRendered = false;
 
   public int X { get; init; }
@@ -79,7 +75,7 @@ class Pixel
     C = c.ToString();
     Color = color;
 
-    foreach (var _ in Enumerable.Range(0, Rnd.Next(1, 100)))
+    foreach (var offset in Enumerable.Range(0, Rnd.Next(1, 100)))
     {
       _rainbow.Next();
     }
