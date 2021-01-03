@@ -67,7 +67,7 @@ record Pixel(int X, int Y, char C, (byte r, byte g, byte b)? Color)
 {
   private static Random Rnd = new Random();
   public string S = C.ToString();
-  private Rainbow _rainbow = OffsetRainbow(new Rainbow(Rnd.Next(10, 30) / 100d));
+  private Rainbow _rainbow = OffsetRainbow(new Rainbow(Rnd.Next(20, 40) / 100d));
   private bool _hasRendered = false;
 
   private static Rainbow OffsetRainbow(Rainbow rainbow) =>
