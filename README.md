@@ -10,7 +10,7 @@ Animated ASCII Christmas Tree, inspired by @LuigiArpino's Tweet, 25 Dec 2020, to
 
 ### Prerequisites
 
-* [.NET 5.0 SDK](https://dot.net/get-dotnet5)
+* [.NET 6.0 SDK](https://dot.net/get-dotnet6)
 
 
 ### Run
