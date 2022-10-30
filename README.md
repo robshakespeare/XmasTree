@@ -5,7 +5,7 @@ Animated ASCII Christmas Tree, inspired by @LuigiArpino's Tweet, 25 Dec 2020, to
 
 ### Preview
 
-![Xmas Tree Preview](XmasTree.png)
+![Xmas Tree Preview](XmasTree.gif)
 
 
 ### Prerequisites
